@@ -26,7 +26,7 @@ class PanelClient:
                 headers["Authorization"] = f"Bearer {self._settings.panel_api_token}"
             headers["Content-Type"] = "application/json"
             self._client = httpx.AsyncClient(
-                base_url=self._settings.panel_base_url.rstrip("/"),
+                base_url=self._settings.panel_base_url,
                 headers=headers,
                 timeout=self._settings.panel_timeout_seconds,
             )
