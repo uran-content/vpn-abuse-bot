@@ -96,7 +96,7 @@ class PanelClient:
 
     async def ban_user_by_email(self, user_id: str, reason: str = "abuse_detected") -> bool:
         telegram_id = (await self._get_sub_info(user_id=user_id))["response"]["telegramId"]
-        await self._ban_user_by_telegram_id(telegram_id=telegram_id)
+        return await self._ban_user_by_telegram_id(telegram_id=telegram_id)
 
     async def ban_user(self, telegram_id: str, reason: str = "abuse_detected") -> bool:
-        await self._ban_user_by_telegram_id(telegram_id=telegram_id)
+        return await self._ban_user_by_telegram_id(telegram_id=telegram_id)
