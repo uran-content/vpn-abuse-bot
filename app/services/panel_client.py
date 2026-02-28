@@ -30,7 +30,7 @@ class PanelClient:
                 headers=headers,
                 timeout=self._settings.panel_timeout_seconds,
             )
-            log.debug(f"httpx client created. base_url = {self._settings.panel_base_url.rstrip('/')}")
+            log.debug(f"httpx client created. base_url = {self._settings.panel_base_url}")
 
     async def aclose(self) -> None:
         if self._client:
