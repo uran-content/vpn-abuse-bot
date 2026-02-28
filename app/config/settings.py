@@ -45,7 +45,7 @@ class Settings(BaseSettings):
         alias="PANEL_FULL_USER_INFO_PATH",
     )
     panel_ban_path: str = Field(
-        default="/api/users/{user_id}/ban",
+        default="/api/users/{uuid}/ban",
         alias="PANEL_BAN_PATH",
     )
 

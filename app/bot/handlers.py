@@ -38,7 +38,7 @@ def build_admin_router() -> Router:
             "🛡️ <b>vpn-abuse-bot</b>\n\n"
             "Команды:\n"
             "• <code>/user &lt;id&gt;</code> — показать инфо о пользователе\n"
-            "• <code>/ban &lt;id&gt;</code> — забанить пользователя (через панель)\n"
+            "• <code>/ban &lt;telegramId&gt;</code> — забанить пользователя (через панель)\n"
             "• <code>/patterns</code> — показать источник паттернов\n"
         )
 
@@ -81,12 +81,12 @@ def build_admin_router() -> Router:
             await message.answer("Использование: <code>/ban 669211</code>")
             return
 
-        user_id = parts[1].strip()
+        telegram_id = parts[1].strip()
         if not panel.enabled():
             await message.answer("Панель не настроена (PANEL_BASE_URL пустой).")
             return
 
-        ok = await panel.ban_user(user_id, reason="manual_ban_from_bot")
+        ok = await panel.ban_user(telegram_id, reason="manual_ban_from_bot")
         await message.answer("⛔ Бан выполнен." if ok else "Не удалось забанить (проверь API/логи).")
 
     @r.callback_query(AbuseCb.filter())
@@ -121,7 +121,7 @@ def build_admin_router() -> Router:
             if not panel.enabled():
                 await cq.answer("Панель не настроена", show_alert=True)
                 return
-            ok = await panel.ban_user(user_id, reason="ban_from_alert_button")
+            ok = await panel.ban_user_by_email(user_id, reason="ban_from_alert_button")
             await cq.answer("Banned ✅" if ok else "Ban failed ❌", show_alert=True)
             return
 

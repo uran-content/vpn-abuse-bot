@@ -1,6 +1,6 @@
 import logging
 import httpx
-from typing import Any
+from typing import Any, List, Dict
 
 from app.config.settings import Settings
 
@@ -11,10 +11,6 @@ class PanelClient:
     """
     Заготовка под интеграцию с панелью remnawave (или твоим API).
     По умолчанию ничего не ломает: если PANEL_BASE_URL пустой — просто не делает запросов.
-
-    Подстрой:
-      PANEL_USER_INFO_PATH_TEMPLATE
-      PANEL_BAN_PATH_TEMPLATE
     """
     def __init__(self, settings: Settings) -> None:
         self._settings = settings
@@ -71,18 +67,36 @@ class PanelClient:
             return None
         
         return await self._get_full_user_info_by_telegram_id(telegram_id=telegram_id)
-
-    async def ban_user(self, user_id: str, reason: str = "abuse_detected") -> bool:
+    
+    async def _disable_sub(self, uuid: str) -> bool:
         if not self._client:
             return False
 
-        path = self._settings.panel_ban_path.format(user_id=user_id)
+        path = self._settings.panel_ban_path.format(uuid=uuid)
         try:
-            r = await self._client.post(path, json={"reason": reason})
+            r = await self._client.post(path)
             if 200 <= r.status_code < 300:
                 return True
-            log.warning("ban_user HTTP %s: %s", r.status_code, r.text[:300])
+            log.warning("_disable_sub HTTP %s: %s", r.status_code, r.text[:300])
             return False
         except Exception:
-            log.exception("ban_user failed")
+            log.exception("_disable_sub failed")
             return False
+    
+    async def _ban_user_by_telegram_id(self, telegram_id: int | str) -> bool:
+        full_user_info: List[Dict[str, Any]] = await self._get_full_user_info_by_telegram_id(telegram_id=telegram_id)["response"]
+
+        success = True
+        for sub in full_user_info:
+            result = await self._disable_sub(uuid=sub["uuid"])
+            if result is False:
+                success = False
+        
+        return success
+
+    async def ban_user_by_email(self, user_id: str, reason: str = "abuse_detected") -> bool:
+        telegram_id = (await self._get_sub_info(user_id=user_id))["response"]["telegramId"]
+        await self._ban_user_by_telegram_id(telegram_id=telegram_id)
+
+    async def ban_user(self, telegram_id: str, reason: str = "abuse_detected") -> bool:
+        await self._ban_user_by_telegram_id(telegram_id=telegram_id)
