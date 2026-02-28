@@ -1,4 +1,5 @@
 import asyncio
+import html
 import logging
 from aiogram import Bot
 
@@ -18,7 +19,7 @@ def _fmt_user_info(user_info: dict | None) -> str:
     safe_parts = []
     for k in ("id", "email", "status", "created_at", "expires_at", "last_seen", "note"):
         if k in user_info and user_info[k] is not None:
-            safe_parts.append(f"<b>{k}</b>: {user_info[k]}")
+            safe_parts.append(f"<b>{html.escape(str(k))}</b>: {html.escape(str(user_info[k]))}")
     if not safe_parts:
         return "ℹ️ <i>Панель вернула данные, но ключевые поля не распознаны</i>"
     return "👤 <b>User info</b>\n" + "\n".join(safe_parts)
@@ -87,16 +88,16 @@ class WebhookProcessor:
         # 2) Текст админу
         text = (
             f"⚠️ <b>Возможное злоупотребление</b>\n\n"
-            f"<b>UserID</b>: <code>{e.userId}</code>\n"
-            f"<b>Node</b>: <code>{e.node}</code>\n"
-            f"<b>Pattern</b>: <code>{e.patternId}</code>\n"
+            f"<b>UserID</b>: <code>{html.escape(e.userId)}</code>\n"
+            f"<b>Node</b>: <code>{html.escape(e.node)}</code>\n"
+            f"<b>Pattern</b>: <code>{html.escape(e.patternId)}</code>\n"
             f"<b>Count</b>: <code>{e.count}</code> за <code>{e.windowSeconds}</code> сек\n"
-            f"<b>ObservedAt</b>: <code>{e.observedAt}</code>\n\n"
+            f"<b>ObservedAt</b>: <code>{html.escape(e.observedAt)}</code>\n\n"
             f"{_fmt_user_info(user_info)}"
         )
         if e.sample:
             # Коротко (чтобы не раздувать сообщение)
-            sample = e.sample.strip()
+            sample = html.escape(e.sample.strip())
             if len(sample) > 600:
                 sample = sample[:600] + "…"
             text += f"\n\n<b>Sample</b>:\n<code>{sample}</code>"

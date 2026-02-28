@@ -37,7 +37,7 @@ async def main() -> None:
     # Bot routes
     dp.include_router(build_admin_router())
 
-    async def on_startup() -> None:
+    async def on_startup(*_: object, **__: object) -> None:
         await pattern_store.warmup()
         await processor.start()
         await web_server.start()
@@ -48,14 +48,14 @@ async def main() -> None:
             f"Paths: webhook={settings.webhook_path}, patterns={settings.patterns_path}",
         )
 
-    async def on_shutdown() -> None:
+    async def on_shutdown(*_: object, **__: object) -> None:
         await web_server.stop()
         await processor.stop()
         await panel.aclose()
         await bot.session.close()
 
-    dp.startup.register(lambda *_: on_startup())
-    dp.shutdown.register(lambda *_: on_shutdown())
+    dp.startup.register(on_startup)
+    dp.shutdown.register(on_shutdown)
 
     # Dependency injection в handlers через start_polling kwargs
     await dp.start_polling(

@@ -1,3 +1,4 @@
+import html
 import logging
 from aiogram import Router, F
 from aiogram.filters import Command
@@ -22,7 +23,7 @@ def _pretty_json(data: dict | None) -> str:
     s = json.dumps(data, ensure_ascii=False, indent=2)
     if len(s) > 3500:
         s = s[:3500] + "\n…"
-    return s
+    return html.escape(s)
 
 
 def build_admin_router() -> Router:
@@ -66,7 +67,7 @@ def build_admin_router() -> Router:
         info = await panel.get_user_info(user_id) if panel.enabled() else None
 
         await message.answer(
-            f"👤 <b>User</b>: <code>{user_id}</code>\n\n"
+            f"👤 <b>User</b>: <code>{html.escape(user_id)}</code>\n\n"
             f"<code>{_pretty_json(info)}</code>"
         )
 
@@ -110,7 +111,7 @@ def build_admin_router() -> Router:
         if action == "details":
             info = await panel.get_user_info(user_id) if panel.enabled() else None
             await cq.message.answer(
-                f"🔍 <b>Details</b> for <code>{user_id}</code>\n\n"
+                f"🔍 <b>Details</b> for <code>{html.escape(user_id)}</code>\n\n"
                 f"<code>{_pretty_json(info)}</code>"
             )
             await cq.answer()
