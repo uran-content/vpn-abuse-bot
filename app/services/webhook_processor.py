@@ -1,6 +1,7 @@
 import asyncio
 import html
 import logging
+import ipaddress
 from aiogram import Bot
 from typing import Dict, List, Any
 
@@ -123,6 +124,7 @@ class WebhookProcessor:
         ban_type = (e.banType or "WEBHOOK").upper()
 
         ban_block = ""
+        kb = None
         if ban_type == "FIRST_IP_WEBHOOK_AFTER":
             ban_block += "\n🚫 <b>Firewall ban applied</b>"
             ban_block += f"\n<b>Banned IP</b>: <code>{e.bannedIp or '—'}</code>"
@@ -135,8 +137,22 @@ class WebhookProcessor:
                 ban_block += f"\n<b>Firewall error</b>: <code>{err}</code>"
             text += f"{ban_block}"
         else:
-            user_info = await self._panel.get_full_user_info(e.userId) if self._panel.enabled() else None
-            text += f"{_fmt_user_info(user_info)}"
+            def _is_ipv4(s: str) -> bool:
+                try:
+                    return isinstance(ipaddress.ip_address(s), ipaddress.IPv4Address)
+                except ValueError:
+                    return False
+            
+            user_id_type = (e.userIdType or "EMAIL").upper()
+            is_ip = (user_id_type == "IP") or _is_ipv4(e.userId)
+            
+            user_info = None
+            if not is_ip and self._panel.enabled():
+                user_info = await self._panel.get_full_user_info(e.userId) if self._panel.enabled() else None
+                text += f"{_fmt_user_info(user_info)}"
+                kb = abuse_keyboard(user_id=e.userId)
+            else:
+                text += f"<b>Banned</b>: <code>{e.userId or '—'}</code>"
 
         if e.sample:
             # Коротко (чтобы не раздувать сообщение)
@@ -144,9 +160,6 @@ class WebhookProcessor:
             if len(sample) > 600:
                 sample = sample[:600] + "…"
             text += f"\n\n<b>Sample</b>:\n<code>{sample}</code>"
-
-        # 3) Кнопки
-        kb = abuse_keyboard(user_id=e.userId)
 
         await self._bot.send_message(
             chat_id=self._settings.admin_telegram_id,

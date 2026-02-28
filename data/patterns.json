@@ -6,10 +6,28 @@
       "serverPolicy": "DEFAULT_APPLY",
       "serverExceptions": ["203.0.113.10"],
       "banType": "WEBHOOK",
+      "userIdType": "EMAIL",
 
       "mustContain": ["accepted", "BLOCK]", "email:"],
       "matchRegex": "\\[[^\\]]+\\s(?:->|>>)\\s*BLOCK\\]",
       "extract": { "type": "after", "after": "email:", "until": "" },
+      "threshold": 60,
+      "windowSeconds": 30,
+      "cooldownSeconds": 1800,
+      "maxTrackedUsers": 20000,
+      "includeSample": false
+    },
+    {
+      "id": "BLOCK_60t_in_30s_IP",
+      "enabled": true,
+      "serverPolicy": "DEFAULT_SKIP",
+      "serverExceptions": ["203.0.113.10"],
+      "banType": "FIRST_IP_WEBHOOK_AFTER",
+      "userIdType": "IP",
+
+      "mustContain": ["accepted", "BLOCK]"],
+      "matchRegex": "\\[[^\\]]+\\s(?:->|>>)\\s*BLOCK\\]",
+      "extract": {},
       "threshold": 60,
       "windowSeconds": 30,
       "cooldownSeconds": 1800,

@@ -21,3 +21,5 @@ class WatchdogWebhook(BaseModel):
     firewallType: str | None = None
     firewallOk: bool | None = None
     firewallError: str | None = None
+
+    userIdType: str | None = None  # EMAIL | IP
