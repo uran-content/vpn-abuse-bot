@@ -24,6 +24,7 @@ class PanelClient:
             headers = {}
             if self._settings.panel_api_token:
                 headers["Authorization"] = f"Bearer {self._settings.panel_api_token}"
+            headers["Content-Type"] = "application/json"
             self._client = httpx.AsyncClient(
                 base_url=self._settings.panel_base_url.rstrip("/"),
                 headers=headers,
@@ -41,7 +42,7 @@ class PanelClient:
         if not self._client:
             return None
 
-        path = self._settings.panel_user_info_path_template.format(user_id=user_id)
+        path = self._settings.panel_user_info_path.format(user_id=user_id)
         try:
             r = await self._client.get(path)
             if r.status_code == 200:
@@ -56,7 +57,7 @@ class PanelClient:
         if not self._client:
             return False
 
-        path = self._settings.panel_ban_path_template.format(user_id=user_id)
+        path = self._settings.panel_ban_path.format(user_id=user_id)
         try:
             r = await self._client.post(path, json={"reason": reason})
             if 200 <= r.status_code < 300:

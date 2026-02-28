@@ -36,13 +36,13 @@ class Settings(BaseSettings):
     panel_base_url: str = Field(default="", alias="PANEL_BASE_URL")
     panel_api_token: str = Field(default="", alias="PANEL_API_TOKEN")
     panel_timeout_seconds: float = Field(default=5, alias="PANEL_TIMEOUT_SECONDS")
-    panel_user_info_path_template: str = Field(
+    panel_user_info_path: str = Field(
         default="/api/users/{user_id}",
-        alias="PANEL_USER_INFO_PATH_TEMPLATE",
+        alias="PANEL_USER_INFO_PATH",
     )
-    panel_ban_path_template: str = Field(
+    panel_ban_path: str = Field(
         default="/api/users/{user_id}/ban",
-        alias="PANEL_BAN_PATH_TEMPLATE",
+        alias="PANEL_BAN_PATH",
     )
 
     # Logging
