@@ -41,10 +41,10 @@ def _fmt_user_info(user_info: dict | None) -> str:
 
         if sub.get('trafficLimitBytes') and sub['trafficLimitBytes'] != 0:
             traffic_limit = round(sub['trafficLimitBytes'] / 1073741824, 2)
-            used_traffic = round(sub['usedTrafficBytes'] / 1073741824, 2)
+            used_traffic = round(sub['userTraffic']['usedTrafficBytes'] / 1073741824, 2)
             text += f"L Трафик: {used_traffic}ГБ / {traffic_limit}ГБ\n"
         
-        lifetime_used_traffic = round(sub['lifetimeUsedTrafficBytes'] / 1073741824, 2)
+        lifetime_used_traffic = round(sub['userTraffic']['lifetimeUsedTrafficBytes'] / 1073741824, 2)
         text += f"L Трафик общ.: {lifetime_used_traffic}ГБ"
         text += "</blockquote>\n\n"
     
