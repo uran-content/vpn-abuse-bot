@@ -48,6 +48,9 @@ def _fmt_user_info(user_info: dict | None) -> str:
         text += f"L Трафик общ.: {lifetime_used_traffic}ГБ"
         text += "</blockquote>\n\n"
     
+    if len(text) > 3500:
+        text = text[:3500] + "\n…"
+
     return text
 
 
