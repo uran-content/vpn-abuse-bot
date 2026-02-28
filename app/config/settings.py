@@ -41,7 +41,7 @@ class Settings(BaseSettings):
         alias="PANEL_USER_INFO_PATH",
     )
     panel_full_user_info_path: str = Field(
-        default="/api/users/{user_id}",
+        default="/api/users/by-telegram-id/{telegram_id}",
         alias="PANEL_FULL_USER_INFO_PATH",
     )
     panel_ban_path: str = Field(
