@@ -38,39 +38,39 @@ class PanelClient:
     def enabled(self) -> bool:
         return self._client is not None
     
-    async def _get_user_telegram_id(self, user_id: str) -> int | None:
+    async def _get_sub_info(self, user_id: str) -> dict[str, Any] | None:
         path = self._settings.panel_user_info_path.format(user_id=user_id)
         try:
             r = await self._client.get(path)
             if r.status_code == 200:
-                return int(r.json()["response"]["telegramId"])
-            log.warning("get_user_info HTTP %s: %s", r.status_code, r.text[:300])
+                return r.json()
+            log.warning("_get_sub_info HTTP %s: %s", r.status_code, r.text[:300])
             return None
         except Exception:
-            log.exception("get_user_info failed")
+            log.exception("_get_sub_info failed")
             return None
     
-    async def _get_full_user_info(self, telegram_id: int) -> dict[str, Any] | None:
+    async def _get_full_user_info_by_telegram_id(self, telegram_id: int) -> dict[str, Any] | None:
         path = self._settings.panel_full_user_info_path.format(telegram_id=telegram_id)
         try:
             r = await self._client.get(path)
             if r.status_code == 200:
                 return r.json()
-            log.warning("get_user_info HTTP %s: %s", r.status_code, r.text[:300])
+            log.warning("_get_full_user_info_by_telegram_id HTTP %s: %s", r.status_code, r.text[:300])
             return None
         except Exception:
-            log.exception("get_user_info failed")
+            log.exception("_get_full_user_info_by_telegram_id failed")
             return None
 
-    async def get_user_info(self, user_id: str) -> dict[str, Any] | None:
+    async def get_full_user_info(self, user_id: str) -> dict[str, Any] | None:
         if not self._client:
             return None
         
-        telegram_id = await self._get_user_telegram_id(user_id=user_id)
+        telegram_id = (await self._get_sub_info(user_id=user_id))["response"]["telegramId"]
         if telegram_id is None:
             return None
         
-        return await self._get_full_user_info(telegram_id=telegram_id)
+        return await self._get_full_user_info_by_telegram_id(telegram_id=telegram_id)
 
     async def ban_user(self, user_id: str, reason: str = "abuse_detected") -> bool:
         if not self._client:

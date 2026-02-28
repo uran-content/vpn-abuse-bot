@@ -64,7 +64,7 @@ def build_admin_router() -> Router:
             return
 
         user_id = parts[1].strip()
-        info = await panel.get_user_info(user_id) if panel.enabled() else None
+        info = await panel._get_sub_info(user_id) if panel.enabled() else None
 
         await message.answer(
             f"👤 <b>User</b>: <code>{html.escape(user_id)}</code>\n\n"
@@ -109,7 +109,7 @@ def build_admin_router() -> Router:
             return
 
         if action == "details":
-            info = await panel.get_user_info(user_id) if panel.enabled() else None
+            info = await panel._get_sub_info(user_id) if panel.enabled() else None
             await cq.message.answer(
                 f"🔍 <b>Details</b> for <code>{html.escape(user_id)}</code>\n\n"
                 f"<code>{_pretty_json(info)}</code>"

@@ -2,6 +2,7 @@ import asyncio
 import html
 import logging
 from aiogram import Bot
+from typing import Dict, List, Any
 
 from app.config.settings import Settings
 from app.models.webhook import WatchdogWebhook
@@ -14,15 +15,40 @@ log = logging.getLogger("webhook_processor")
 def _fmt_user_info(user_info: dict | None) -> str:
     if not user_info:
         return "ℹ️ <i>Доп. информация не найдена (панель не настроена или API недоступен)</i>"
-    # Тут ты сможешь красиво отформатировать реальные поля панели.
-    # Пока — максимально безопасный дефолт:
-    safe_parts = []
-    for k in ("id", "email", "status", "created_at", "expires_at", "last_seen", "note"):
-        if k in user_info and user_info[k] is not None:
-            safe_parts.append(f"<b>{html.escape(str(k))}</b>: {html.escape(str(user_info[k]))}")
-    if not safe_parts:
-        return "ℹ️ <i>Панель вернула данные, но ключевые поля не распознаны</i>"
-    return "👤 <b>User info</b>\n" + "\n".join(safe_parts)
+    
+    response: List[Dict[str, Any]] = user_info["response"]
+
+    telegram_id = response[0]['telegramId']
+    text = (
+        "<b>User info</b>\n"
+        "\n"
+        f"👤 Telegram ID: {telegram_id}\n"
+        "\n"
+    )
+    for sub in response:
+        text += "<blockquote>"
+        text += f"L sid: {sub['shortUuid']}\n"
+        text += f"L username: {sub['username']}\n"
+        text += f"L expireAt: {sub['expireAt']}\n"
+        text += f"L createdAt: {sub['createdAt']}\n"
+
+        int_squads = sub['activeInternalSquads']
+        int_sq_text = []
+        for int_sq in int_squads:
+            int_sq_text.append(int_sq['name'])
+        int_sq_text = ", ".join(int_sq_text)
+        text += f"L Сквады: {int_sq_text}\n"
+
+        if sub.get('trafficLimitBytes') and sub['trafficLimitBytes'] != 0:
+            traffic_limit = round(sub['trafficLimitBytes'] / 1073741824, 2)
+            used_traffic = round(sub['usedTrafficBytes'] / 1073741824, 2)
+            text += f"L Трафик: {used_traffic}ГБ / {traffic_limit}ГБ\n"
+        
+        lifetime_used_traffic = round(sub['lifetimeUsedTrafficBytes'] / 1073741824, 2)
+        text += f"L Трафик общ.: {lifetime_used_traffic}ГБ"
+        text += "</blockquote>\n\n"
+    
+    return text
 
 
 class WebhookProcessor:
@@ -83,7 +109,7 @@ class WebhookProcessor:
 
     async def _process(self, e: WatchdogWebhook) -> None:
         # 1) Обогащение инфы (по желанию)
-        user_info = await self._panel.get_user_info(e.userId) if self._panel.enabled() else None
+        user_info = await self._panel.get_full_user_info(e.userId) if self._panel.enabled() else None
 
         # 2) Текст админу
         text = (
