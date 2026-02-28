@@ -26,7 +26,7 @@ def _fmt_user_info(user_info: dict | None) -> str:
         "\n"
     )
     for sub in response:
-        text += "<blockquote>"
+        text += "<blockquote expandable>"
         text += f"L sid: {sub['shortUuid']}\n"
         text += f"L username: {sub['username']}\n"
         text += f"L expireAt: {sub['expireAt']}\n"
