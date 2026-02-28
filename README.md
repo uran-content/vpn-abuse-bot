@@ -30,5 +30,6 @@ services:
     ports:
       - "8443:8443"
     volumes:
-      - ./certs:/certs:ro
+      - /etc/letsencrypt/live/example.notifications.com/fullchain.pem:/certs/fullchain.pem:ro
+      - /etc/letsencrypt/live/example.notifications.com/privkey.pem:/certs/privkey.pem:ro
       - ./data:/data:ro
