@@ -26,11 +26,10 @@ class PanelClient:
                 headers["Authorization"] = f"Bearer {self._settings.panel_api_token}"
             headers["Content-Type"] = "application/json"
             self._client = httpx.AsyncClient(
-                base_url=self._settings.panel_base_url,
+                base_url=self._settings.panel_base_url.rstrip("/"),
                 headers=headers,
                 timeout=self._settings.panel_timeout_seconds,
             )
-            log.debug(f"httpx client created. base_url = {self._settings.panel_base_url}")
 
     async def aclose(self) -> None:
         if self._client:
@@ -44,7 +43,6 @@ class PanelClient:
             return None
 
         path = self._settings.panel_user_info_path.format(user_id=user_id)
-        log.debug(f"path={path}")
         try:
             r = await self._client.get(path)
             if r.status_code == 200:
