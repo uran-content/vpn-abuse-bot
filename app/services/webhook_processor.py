@@ -49,7 +49,7 @@ def _fmt_user_info(user_info: dict | None) -> str:
         text += "</blockquote>\n\n"
     
     if len(text) > 3500:
-        text = text[:3500] + "\n…"
+        text = html.escape(text[:3500] + "\n…")
 
     return text
 
