@@ -13,8 +13,8 @@ class Settings(BaseSettings):
     api_host: str = Field(default="0.0.0.0", alias="API_HOST")
     api_port: int = Field(default=8443, alias="API_PORT")
 
-    ssl_cert_file: str = Field(default="/certs/fullchain.pem", alias="SSL_CERT_FILE")
-    ssl_key_file: str = Field(default="/certs/privkey.pem", alias="SSL_KEY_FILE")
+    ssl_cert_file: str = Field(default="/certs/fullchain.pem", alias="API_SSL_CERT_FILE")
+    ssl_key_file: str = Field(default="/certs/privkey.pem", alias="API_SSL_KEY_FILE")
 
     webhook_path: str = Field(default="/api/webhook", alias="WEBHOOK_PATH")
     patterns_path: str = Field(default="/api/patterns", alias="PATTERNS_PATH")
