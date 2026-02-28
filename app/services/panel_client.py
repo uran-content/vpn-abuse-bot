@@ -84,7 +84,7 @@ class PanelClient:
             return False
     
     async def _ban_user_by_telegram_id(self, telegram_id: int | str) -> bool:
-        full_user_info: List[Dict[str, Any]] = await self._get_full_user_info_by_telegram_id(telegram_id=telegram_id)["response"]
+        full_user_info: List[Dict[str, Any]] = (await self._get_full_user_info_by_telegram_id(telegram_id=telegram_id))["response"]
 
         success = True
         for sub in full_user_info:
