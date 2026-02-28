@@ -14,6 +14,9 @@ DEFAULT_PATTERNS = {
         {
             "id": "block_3_per_minute",
             "enabled": True,
+            "serverPolicy": "DEFAULT_APPLY",
+            "serverExceptions": [],
+            "banType": "WEBHOOK",
             "mustContain": ["accepted", "BLOCK]", "email:"],
             "matchRegex": r"\[[^\]]+\s(?:->|>>)\s*BLOCK\]",
             "extract": {"type": "after", "after": "email:", "until": ""},

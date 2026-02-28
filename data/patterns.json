@@ -1,14 +1,18 @@
 {
   "patterns": [
     {
-      "id": "block_3_per_minute",
+      "id": "BLOCK_60t_in_30s",
       "enabled": true,
+      "serverPolicy": "DEFAULT_APPLY",
+      "serverExceptions": ["203.0.113.10"],
+      "banType": "WEBHOOK",
+
       "mustContain": ["accepted", "BLOCK]", "email:"],
       "matchRegex": "\\[[^\\]]+\\s(?:->|>>)\\s*BLOCK\\]",
       "extract": { "type": "after", "after": "email:", "until": "" },
-      "threshold": 3,
-      "windowSeconds": 60,
-      "cooldownSeconds": 600,
+      "threshold": 60,
+      "windowSeconds": 30,
+      "cooldownSeconds": 1800,
       "maxTrackedUsers": 20000,
       "includeSample": false
     }

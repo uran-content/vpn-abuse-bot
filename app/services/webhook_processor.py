@@ -111,19 +111,33 @@ class WebhookProcessor:
                 self._queue.task_done()
 
     async def _process(self, e: WatchdogWebhook) -> None:
-        # 1) Обогащение инфы (по желанию)
-        user_info = await self._panel.get_full_user_info(e.userId) if self._panel.enabled() else None
-
-        # 2) Текст админу
         text = (
             f"⚠️ <b>Возможное злоупотребление</b>\n\n"
             f"<b>UserID</b>: <code>{html.escape(e.userId)}</code>\n"
             f"<b>Node</b>: <code>{html.escape(e.node)}</code>\n"
             f"<b>Pattern</b>: <code>{html.escape(e.patternId)}</code>\n"
             f"<b>Count</b>: <code>{e.count}</code> за <code>{e.windowSeconds}</code> сек\n"
-            f"<b>ObservedAt</b>: <code>{html.escape(e.observedAt)}</code>\n\n"
-            f"{_fmt_user_info(user_info)}"
+            f"<b>ObservedAt</b>: <code>{html.escape(e.observedAt)}</code>\n"
         )
+
+        ban_type = (e.banType or "WEBHOOK").upper()
+
+        ban_block = ""
+        if ban_type == "FIRST_IP_WEBHOOK_AFTER":
+            ban_block += "\n🚫 <b>Firewall ban applied</b>"
+            ban_block += f"\n<b>Banned IP</b>: <code>{e.bannedIp or '—'}</code>"
+            if e.firewallOk is not None:
+                ban_block += f"\n<b>Firewall</b>: <code>{e.firewallType or 'nftables'}</code> ok=<code>{e.firewallOk}</code>"
+            if e.firewallError:
+                err = e.firewallError.strip()
+                if len(err) > 300:
+                    err = err[:300] + "…"
+                ban_block += f"\n<b>Firewall error</b>: <code>{err}</code>"
+            text += f"{ban_block}"
+        else:
+            user_info = await self._panel.get_full_user_info(e.userId) if self._panel.enabled() else None
+            text += f"{_fmt_user_info(user_info)}"
+
         if e.sample:
             # Коротко (чтобы не раздувать сообщение)
             sample = html.escape(e.sample.strip())

@@ -15,3 +15,9 @@ class WatchdogWebhook(BaseModel):
     windowSeconds: int
     observedAt: str  # RFC3339 string
     sample: str | None = None
+
+    banType: str | None = None
+    bannedIp: str | None = None
+    firewallType: str | None = None
+    firewallOk: bool | None = None
+    firewallError: str | None = None
