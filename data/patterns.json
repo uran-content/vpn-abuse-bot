@@ -1,0 +1,16 @@
+{
+  "patterns": [
+    {
+      "id": "block_3_per_minute",
+      "enabled": true,
+      "mustContain": ["accepted", "BLOCK]", "email:"],
+      "matchRegex": "\\[[^\\]]+\\s(?:->|>>)\\s*BLOCK\\]",
+      "extract": { "type": "after", "after": "email:", "until": "" },
+      "threshold": 3,
+      "windowSeconds": 60,
+      "cooldownSeconds": 600,
+      "maxTrackedUsers": 20000,
+      "includeSample": false
+    }
+  ]
+}
