@@ -33,6 +33,24 @@
       "cooldownSeconds": 1800,
       "maxTrackedUsers": 20000,
       "includeSample": false
+    },
+    {
+      "id": "IDENTICAL_DEST_100t_in_60s",
+      "enabled": true,
+      "serverPolicy": "DEFAULT_APPLY",
+      "serverExceptions": [],
+      "banType": "WEBHOOK",
+      "userIdType": "IPorEMAIL",
+
+      "mustContain": ["accepted", "email:"],
+      "matchRegex": "",
+      "extract": { "type": "after", "after": "email:", "until": "" },
+      "destExtract": { "type": "after", "after": "accepted ", "until": " " },
+      "threshold": 100,
+      "windowSeconds": 60,
+      "cooldownSeconds": 1800,
+      "maxTrackedUsers": 20000,
+      "includeSample": true
     }
   ]
 }

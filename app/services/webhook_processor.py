@@ -121,6 +121,9 @@ class WebhookProcessor:
             f"<b>ObservedAt</b>: <code>{html.escape(e.observedAt)}</code>\n"
         )
 
+        if e.destination:
+            text += f"<b>Destination</b>: <code>{html.escape(e.destination)}</code>\n"
+
         ban_type = (e.banType or "WEBHOOK").upper()
 
         ban_block = ""
@@ -144,10 +147,21 @@ class WebhookProcessor:
                     return False
             
             user_id_type = (e.userIdType or "EMAIL").upper()
-            is_ip = (user_id_type == "IP") or _is_ipv4(e.userId)
+            is_ip = (user_id_type == "IP") or (user_id_type != "IPOREMAIL" and _is_ipv4(e.userId))
+            is_ip_or_email = (user_id_type == "IPOREMAIL")
             
             user_info = None
-            if not is_ip and self._panel.enabled():
+            if is_ip_or_email:
+                # IPorEMAIL: userId may be an email or an IP
+                if _is_ipv4(e.userId):
+                    text += f"<b>Detected by IP</b>: <code>{e.userId or '—'}</code>"
+                elif self._panel.enabled():
+                    user_info = await self._panel.get_full_user_info(e.userId)
+                    text += f"{_fmt_user_info(user_info)}"
+                    kb = abuse_keyboard(user_id=e.userId)
+                else:
+                    text += f"<b>Detected by Email</b>: <code>{e.userId or '—'}</code>"
+            elif not is_ip and self._panel.enabled():
                 user_info = await self._panel.get_full_user_info(e.userId) if self._panel.enabled() else None
                 text += f"{_fmt_user_info(user_info)}"
                 kb = abuse_keyboard(user_id=e.userId)
