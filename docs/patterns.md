@@ -200,7 +200,8 @@ A user who triggers 80 requests in 5 seconds once gets no notification (normal p
 | Value | Behaviour |
 |-------|-----------|
 | `WEBHOOK` | Send an alert to the bot via webhook. No node-side firewall action. The bot notifies the admin in Telegram with action buttons (Details / Ban / Ignore). |
-| `FIRST_IP_WEBHOOK_AFTER` | **First** block the source IP on the node firewall (nftables), **then** send the webhook. The webhook payload includes `bannedIp`, `firewallType`, `firewallOk`, and `firewallError` fields. Use this for high-severity patterns where you want immediate automated IP blocking. |
+| `FIRST_IP_WEBHOOK_AFTER` | **First** block the source IP on the node firewall (nftables), **then** send the webhook. The webhook payload includes `bannedIp`, `firewallType`, `firewallOk`, and `firewallError` fields. Use this for high-severity patterns where you want immediate automated IP blocking. The admin still needs to ban the user manually via buttons. |
+| `FIRST_IP_WEBHOOK_AUTO_BAN` | Same as `FIRST_IP_WEBHOOK_AFTER` (IP is blocked on the node via nftables), **plus** the bot automatically bans the user via the panel API. The Telegram message shows both the firewall result and the auto-ban result. No manual action needed — fully automated response. Requires the panel to be configured (`PANEL_BASE_URL`). |
 
 ### Server targeting
 

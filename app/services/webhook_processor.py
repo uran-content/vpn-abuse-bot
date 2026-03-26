@@ -128,7 +128,8 @@ class WebhookProcessor:
 
         ban_block = ""
         kb = None
-        if ban_type == "FIRST_IP_WEBHOOK_AFTER":
+        is_fw_ban = ban_type in ("FIRST_IP_WEBHOOK_AFTER", "FIRST_IP_WEBHOOK_AUTO_BAN")
+        if is_fw_ban:
             ban_block += "\n🚫 <b>Firewall ban applied</b>"
             ban_block += f"\n<b>Banned IP</b>: <code>{e.bannedIp or '—'}</code>"
             if e.firewallOk is not None:
@@ -138,6 +139,22 @@ class WebhookProcessor:
                 if len(err) > 300:
                     err = err[:300] + "…"
                 ban_block += f"\n<b>Firewall error</b>: <code>{err}</code>"
+
+            # AUTO_BAN: also ban the user via panel
+            if ban_type == "FIRST_IP_WEBHOOK_AUTO_BAN":
+                auto_ban_ok = False
+                if self._panel.enabled() and e.userId:
+                    try:
+                        auto_ban_ok = await self._panel.ban_user_by_email(
+                            e.userId, reason="auto_ban_from_pattern",
+                        )
+                    except Exception:
+                        log.exception("auto-ban failed for userId=%s", e.userId)
+                if auto_ban_ok:
+                    ban_block += "\n\n⛔ <b>User auto-banned via panel</b>"
+                else:
+                    ban_block += "\n\n❌ <b>User auto-ban failed</b> (panel error or not configured)"
+
             text += f"{ban_block}"
         else:
             def _is_ipv4(s: str) -> bool:
