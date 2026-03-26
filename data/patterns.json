@@ -1,44 +1,23 @@
 {
   "patterns": [
     {
-      "id": "BLOCK_60t_in_30s",
+      "id": "IDENTICAL_DEST_main",
       "enabled": true,
       "serverPolicy": "DEFAULT_APPLY",
-      "serverExceptions": ["203.0.113.10"],
-      "banType": "WEBHOOK",
-      "userIdType": "EMAIL",
-
-      "mustContain": ["accepted", "BLOCK]", "email:"],
-      "matchRegex": "\\[[^\\]]+\\s(?:->|>>)\\s*BLOCK\\]",
-      "extract": { "type": "after", "after": "email:", "until": "" },
-      "threshold": 60,
-      "windowSeconds": 30,
-      "cooldownSeconds": 1800,
-      "maxTrackedUsers": 20000,
-      "includeSample": false
-    },
-    {
-      "id": "BLOCK_60t_in_30s_IP",
-      "enabled": true,
-      "serverPolicy": "DEFAULT_SKIP",
-      "serverExceptions": ["203.0.113.10"],
-      "banType": "FIRST_IP_WEBHOOK_AFTER",
-      "userIdType": "IP",
-
-      "mustContain": ["accepted", "BLOCK]"],
-      "matchRegex": "\\[[^\\]]+\\s(?:->|>>)\\s*BLOCK\\]",
-      "extract": {},
-      "threshold": 60,
-      "windowSeconds": 30,
-      "cooldownSeconds": 1800,
-      "maxTrackedUsers": 20000,
-      "includeSample": false
-    },
-    {
-      "id": "IDENTICAL_DEST_100t_in_60s",
-      "enabled": true,
-      "serverPolicy": "DEFAULT_APPLY",
-      "serverExceptions": [],
+      "serverExceptions": [
+        "145.249.115.17", "213.176.16.13", "213.176.16.14", "213.176.16.15", "213.176.16.16",
+        "213.176.16.17", "144.31.94.74", "45.86.74.41", "45.86.74.40", "45.86.74.39",
+        "45.86.74.27", "45.86.74.26", "45.86.74.22", "144.31.2.143", "144.31.2.145",
+        "144.31.2.153", "85.192.48.168", "85.192.49.37", "144.31.90.137", "213.165.59.250",
+        "213.165.59.251", "213.165.59.252", "213.165.59.253", "213.165.59.254", "64.112.127.142",
+        "144.31.2.164", "144.31.4.244", "152.89.244.132", "152.89.244.133", "144.124.242.114",
+        "146.103.123.224", "89.124.67.189", "144.124.238.92", "146.103.121.219", "89.124.75.38",
+        "89.124.65.124", "89.124.76.86", "144.124.232.117", "146.103.127.203", "146.103.98.100",
+        "146.103.99.224", "144.31.1.61", "144.31.4.131", "144.31.4.149", "144.31.4.177",
+        "144.31.4.134", "45.86.74.17", "144.31.3.26", "144.31.1.185", "144.31.3.76",
+        "185.39.18.227", "89.169.55.39", "85.209.157.37", "185.126.67.159", "45.15.128.116",
+        "45.86.74.15", "144.31.1.147", "144.31.3.94", "144.31.1.63", "144.31.0.67"
+      ],
       "banType": "WEBHOOK",
       "userIdType": "IPorEMAIL",
 
@@ -46,9 +25,11 @@
       "matchRegex": "",
       "extract": { "type": "after", "after": "email:", "until": "" },
       "destExtract": { "type": "after", "after": "accepted ", "until": " " },
-      "threshold": 100,
-      "windowSeconds": 60,
+      "threshold": 80,
+      "windowSeconds": 5,
       "cooldownSeconds": 1800,
+      "burstAllowance": 1,
+      "burstIntervalSeconds": 7,
       "maxTrackedUsers": 20000,
       "includeSample": true
     }

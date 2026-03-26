@@ -152,6 +152,7 @@ When the pattern triggers, the webhook payload includes a `destination` field wi
 | `windowSeconds` | int | **yes** | `60` | Sliding time window in seconds. The watchdog checks whether the last `threshold` events all fit within this window. |
 | `cooldownSeconds` | int | **yes** | `0` | Minimum seconds between two alerts for the **same user** (and same destination, if `destExtract` is set). Prevents alert spam. Set to `0` to alert on every threshold breach. |
 | `burstAllowance` | int | no | `0` | Number of threshold breaches to **absorb silently** before actually firing an alert. Filters out short, one-off traffic spikes. See detailed explanation below. |
+| `burstIntervalSeconds` | int | no | `windowSeconds` | Seconds to wait after absorbing a burst before re-evaluating. This is **not** `cooldownSeconds` — it's a short pause to check if the abuse continues. See detailed explanation below. |
 
 **How counting works:**
 
@@ -161,26 +162,34 @@ The watchdog keeps a circular buffer of the last `threshold` timestamps per trac
 
 When `burstAllowance` is `0` (default), the alert fires on the very first threshold breach — the existing behaviour.
 
-When `burstAllowance` is set to **N** (e.g. `2`), the first N threshold breaches are silently absorbed. Each absorbed breach still starts the cooldown timer, so consecutive bursts must be cooldown-separated events. Only on the **(N+1)th** breach does an actual alert fire.
+When `burstAllowance` is set to **N** (e.g. `2`), the first N threshold breaches are silently absorbed. After each absorbed breach, the watchdog waits `burstIntervalSeconds` before re-evaluating. Only on the **(N+1)th** breach does an actual alert fire. `cooldownSeconds` only applies **after** a real alert fires.
+
+There are two separate timers at play:
+
+| Timer | Controls | Typical value |
+|-------|----------|---------------|
+| `burstIntervalSeconds` | Gap between burst evaluations (short) | 5–15 seconds |
+| `cooldownSeconds` | Gap between real alerts (long, anti-spam) | 1800 seconds |
 
 | burstAllowance | Behaviour |
 |----------------|-----------|
 | `0` | Alert fires immediately when threshold is met (default). |
-| `1` | First burst absorbed; alert fires on the 2nd. |
+| `1` | First burst absorbed; if abuse continues after `burstIntervalSeconds`, alert fires. |
 | `2` | First two bursts absorbed; alert fires on the 3rd. |
 
-The burst counter **resets automatically** if the user goes quiet for `cooldownSeconds × (burstAllowance + 1)`. This means old bursts from hours ago don't count toward the current cycle.
+The burst counter **resets automatically** if the user goes quiet for `burstIntervalSeconds × (burstAllowance + 1)`. This means a brief one-off spike is forgotten quickly.
 
-**Example** — tolerate one short spike but alert on sustained abuse:
+**Example** — tolerate one short spike, but catch a DDoS within seconds:
 
 ```json
-"threshold": 100,
-"windowSeconds": 60,
+"threshold": 80,
+"windowSeconds": 5,
 "cooldownSeconds": 1800,
-"burstAllowance": 1
+"burstAllowance": 1,
+"burstIntervalSeconds": 7
 ```
 
-A user who triggers 100 requests in 60 seconds once gets no notification. If they do it again after the 30-minute cooldown, the alert fires.
+A user who triggers 80 requests in 5 seconds once gets no notification (normal page load / reconnect). If the flood continues and the threshold is hit again 7 seconds later — the alert fires. After the alert, `cooldownSeconds` (30 min) prevents notification spam. If the user was quiet for 14 seconds (`7 × 2`) after the first absorbed burst, the counter resets.
 
 ### Enforcement
 
