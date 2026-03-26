@@ -105,7 +105,11 @@ def build_admin_router() -> Router:
 
         if action == "ignore":
             await cq.answer("Ignored ✅")
-            # Можешь здесь добавить свою бизнес‑логику: пометка, запись в БД и т.д.
+            original = cq.message.html_text or cq.message.text or ""
+            await cq.message.edit_text(
+                original + "\n\n✅ <b>Ignored</b>",
+                reply_markup=None,
+            )
             return
 
         if action == "details":
@@ -123,6 +127,15 @@ def build_admin_router() -> Router:
                 return
             ok = await panel.ban_user_by_email(user_id, reason="ban_from_alert_button")
             await cq.answer("Banned ✅" if ok else "Ban failed ❌", show_alert=True)
+            original = cq.message.html_text or cq.message.text or ""
+            if ok:
+                status = "\n\n⛔ <b>User banned</b>"
+            else:
+                status = "\n\n❌ <b>Ban failed</b>"
+            await cq.message.edit_text(
+                original + status,
+                reply_markup=None,
+            )
             return
 
         await cq.answer()
