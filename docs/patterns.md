@@ -81,7 +81,7 @@ To match lines that were accepted and routed to BLOCK:
 |-------|-----------|
 | `EMAIL` | Extract user ID from the log line using the `extract` rule (see below). Typically an email address or numeric account ID. |
 | `IP` | Use the source IPv4 address parsed from the `from <ip>:<port>` portion of the log line. No `extract` rule is needed. Private/invalid IPs are silently skipped. |
-| `IPorEMAIL` | Extract **both** the email (`extract` rule) and the source IP from each log line, then track them as **independent counters**. If the email counter reaches the threshold first the alert fires with the email as `userId`; if the IP counter reaches first, the alert fires with the IP. This catches abuse that spans multiple emails from one IP, or multiple IPs for one email. |
+| `IPorEMAIL` | Extract **both** the email (`extract` rule) and the source IP from each log line, then track them as **independent counters**. If the email counter reaches the threshold first the alert fires with the email as `userId`; if the IP counter reaches first, the alert fires with the IP. **Only one notification is sent per abuse burst** — when one counter fires, the partner counter is placed into cooldown so it does not produce a duplicate alert. This catches abuse that spans multiple emails from one IP, or multiple IPs for one email. |
 
 ### Extract rule (`extract`)
 
