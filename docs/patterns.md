@@ -151,10 +151,36 @@ When the pattern triggers, the webhook payload includes a `destination` field wi
 | `threshold` | int | **yes** | `1` | Number of matching events within the window required to trigger an alert. |
 | `windowSeconds` | int | **yes** | `60` | Sliding time window in seconds. The watchdog checks whether the last `threshold` events all fit within this window. |
 | `cooldownSeconds` | int | **yes** | `0` | Minimum seconds between two alerts for the **same user** (and same destination, if `destExtract` is set). Prevents alert spam. Set to `0` to alert on every threshold breach. |
+| `burstAllowance` | int | no | `0` | Number of threshold breaches to **absorb silently** before actually firing an alert. Filters out short, one-off traffic spikes. See detailed explanation below. |
 
 **How counting works:**
 
 The watchdog keeps a circular buffer of the last `threshold` timestamps per tracking key. When the buffer is full and the oldest timestamp is within `windowSeconds` of now, the threshold is met. If `cooldownSeconds` has elapsed since the last alert for this key, an alert fires.
+
+**How `burstAllowance` works:**
+
+When `burstAllowance` is `0` (default), the alert fires on the very first threshold breach — the existing behaviour.
+
+When `burstAllowance` is set to **N** (e.g. `2`), the first N threshold breaches are silently absorbed. Each absorbed breach still starts the cooldown timer, so consecutive bursts must be cooldown-separated events. Only on the **(N+1)th** breach does an actual alert fire.
+
+| burstAllowance | Behaviour |
+|----------------|-----------|
+| `0` | Alert fires immediately when threshold is met (default). |
+| `1` | First burst absorbed; alert fires on the 2nd. |
+| `2` | First two bursts absorbed; alert fires on the 3rd. |
+
+The burst counter **resets automatically** if the user goes quiet for `cooldownSeconds × (burstAllowance + 1)`. This means old bursts from hours ago don't count toward the current cycle.
+
+**Example** — tolerate one short spike but alert on sustained abuse:
+
+```json
+"threshold": 100,
+"windowSeconds": 60,
+"cooldownSeconds": 1800,
+"burstAllowance": 1
+```
+
+A user who triggers 100 requests in 60 seconds once gets no notification. If they do it again after the 30-minute cooldown, the alert fires.
 
 ### Enforcement
 
