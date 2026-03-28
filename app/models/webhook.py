@@ -18,6 +18,7 @@ class WatchdogWebhook(BaseModel):
 
     banType: str | None = None
     bannedIp: str | None = None
+    nftBanDuration: str | None = None
     firewallType: str | None = None
     firewallOk: bool | None = None
     firewallError: str | None = None

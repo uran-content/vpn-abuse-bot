@@ -130,7 +130,8 @@ class WebhookProcessor:
         kb = None
         is_fw_ban = ban_type in ("FIRST_IP_WEBHOOK_AFTER", "FIRST_IP_WEBHOOK_AUTO_BAN")
         if is_fw_ban:
-            ban_block += "\n🚫 <b>Firewall ban applied</b>"
+            dur_label = e.nftBanDuration if e.nftBanDuration and e.nftBanDuration != "0" else "permanent"
+            ban_block += f"\n🚫 <b>Firewall ban applied</b> ({html.escape(dur_label)})"
             ban_block += f"\n<b>Banned IP</b>: <code>{e.bannedIp or '—'}</code>"
             if e.firewallOk is not None:
                 ban_block += f"\n<b>Firewall</b>: <code>{e.firewallType or 'nftables'}</code> ok=<code>{e.firewallOk}</code>"
