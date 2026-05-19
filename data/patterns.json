@@ -1,7 +1,7 @@
 {
   "patterns": [
     {
-      "id": "IDENTICAL_DEST_main",
+      "id": "DEST",
       "enabled": true,
       "serverPolicy": "DEFAULT_APPLY",
       "serverExceptions": [
@@ -18,18 +18,21 @@
         "185.39.18.227", "89.169.55.39", "85.209.157.37", "185.126.67.159", "45.15.128.116",
         "45.86.74.15", "144.31.1.147", "144.31.3.94", "144.31.1.63", "144.31.0.67"
       ],
-      "banType": "WEBHOOK",
-      "userIdType": "IPorEMAIL",
+      "banType": "FIRST_IP_WEBHOOK_AFTER",
+      "userIdType": "EMAIL",
+      "nftBanDuration": "12h",
 
       "mustContain": ["accepted", "email:"],
       "matchRegex": "",
       "extract": { "type": "after", "after": "email:", "until": "" },
       "destExtract": { "type": "after", "after": "accepted ", "until": " " },
-      "threshold": 80,
+
+      "threshold": 400,
       "windowSeconds": 5,
       "cooldownSeconds": 1800,
       "burstAllowance": 1,
-      "burstIntervalSeconds": 7,
+      "burstIntervalSeconds": 5,
+
       "maxTrackedUsers": 20000,
       "includeSample": true
     }
